@@ -1,0 +1,954 @@
+#+STARTUP: overview
+#+STARTUP: align
+#+author: Bazinevis
+#+title: Emacs Configuration
+
+* Table of Contents :TOC:
+- [[#configuration][Configuration]]
+  - [[#setting-up-the-package-repositories][Setting Up the Package Repositories]]
+  - [[#cleaning-up-the-user-interface][Cleaning Up the User Interface]]
+  - [[#dashboard][dashboard]]
+  - [[#projectile][projectile]]
+  - [[#counsel-projectile][counsel-projectile]]
+  - [[#ivycounselswiper][Ivy/Counsel/Swiper]]
+  - [[#olivetti][Olivetti]]
+  - [[#expand-region][expand region]]
+  - [[#crux][crux]]
+  - [[#consult][consult]]
+  - [[#delight][delight]]
+  - [[#aggressive-indent][aggressive-indent]]
+  - [[#dimmer][dimmer]]
+  - [[#highlight-current-line][highlight current line]]
+  - [[#marginalia][marginalia]]
+  - [[#smartparens][smartparens]]
+  - [[#imenu-list][imenu-list]]
+  - [[#embark][embark]]
+  - [[#grammar-check][grammar check]]
+  - [[#vundo][vundo]]
+  - [[#yasnippet][yasnippet]]
+  - [[#yasnippet-snippets][yasnippet-snippets]]
+  - [[#ivy-yasnippet][ivy-yasnippet]]
+  - [[#which-key][which-key]]
+  - [[#dart-language][dart language]]
+  - [[#magit][magit]]
+  - [[#fly-spell][fly-spell]]
+  - [[#org-modern][org-modern]]
+  - [[#toc-org][toc-org]]
+  - [[#org][org]]
+  - [[#rainbow-delimiters][rainbow-delimiters]]
+  - [[#company][company]]
+  - [[#drag-stuff][drag-stuff]]
+  - [[#pdf-tools][pdf-tools]]
+  - [[#key-bindings][key-bindings]]
+  - [[#origami][origami]]
+  - [[#popper][popper]]
+- [[#documentation][Documentation]]
+  - [[#query-replace][Query Replace]]
+  - [[#motion][Motion]]
+
+* Configuration
+** Setting Up the Package Repositories
+#+begin_src emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (package-initialize)
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package-ensure)
+  (setq use-package-always-ensure t)
+#+end_src
+** Cleaning Up the User Interface
+#+begin_src emacs-lisp
+  (setq
+   ;; Don't show the startup screen
+   inhibit-startup-screen t
+
+   ;; Double-spaces after periods is morally wrong.
+   sentence-end-double-space nil
+
+   ;; Never ding at me, ever.
+   ring-bell-function 'ignore
+
+   ;; Save existing clipboard text into the kill ring before replacing it.
+   save-interprogram-paste-before-kill t
+
+   ;; Prompts should go in the minibuffer, not in a GUI.
+   use-dialog-box t
+
+   ;; Fix undo in commands affecting the mark.
+   mark-even-if-inactive nil
+
+   ;; Let C-k delete the whole line.
+   kill-whole-line t
+
+   ;; accept 'y' or 'n' instead of yes/no
+   use-short-answers t)
+
+  ;; Never mix tabs and spaces. Never use tabs, period.
+  (setq-default indent-tabs-mode nil)
+
+  (delete-selection-mode t)
+  (column-number-mode)
+
+  (setq
+   make-backup-files nil
+   auto-save-default nil
+   create-lockfiles nil)
+
+  (setq custom-file (make-temp-name "/tmp/"))
+
+  ;; Makes *scratch* empty.
+  (setq initial-scratch-message "")
+
+  ;; Removes *scratch* from buffer after the mode has been set.
+  (defun remove-scratch-buffer ()
+    (if (get-buffer "*scratch*")
+        (kill-buffer "*scratch*")))
+  (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+
+  ;; ;; Removes *messages* from the buffer.
+  ;; (setq-default message-log-max nil)
+  ;; (kill-buffer "*Messages*")
+
+  ;; ;; Removes *Completions* from buffer after you've opened a file.
+  ;; (add-hook 'minibuffer-exit-hook
+  ;;           '(lambda ()
+  ;;              (let ((buffer "*Completions*"))
+  ;;                (and (get-buffer buffer)
+  ;;                     (kill-buffer buffer)))))
+
+  ;;Don't show * Buffer list* when opening multiple files at the same time.
+  (setq inhibit-startup-buffer-menu t)
+
+  ;; Show only one active window when opening multiple files at the same time.
+  (add-hook 'window-setup-hook 'delete-other-windows)
+
+  ;; no need to show menu bar
+  (menu-bar-mode -1)
+
+  ;; no need to show tool bar
+  (tool-bar-mode -1)
+
+  ;; no need to shrow scroll bar
+  (scroll-bar-mode -1)
+#+end_src
+*** fonts
+#+begin_src emacs-lisp
+  (set-frame-font "Noto Sans Mono 10" nil t)
+#+end_src
+*** theme and mini-buffer
+#+BEGIN_SRC emacs-lisp
+    (use-package dracula-theme)
+    (use-package smart-mode-line)
+
+    (use-package smart-mode-line-atom-one-dark-theme)
+
+    (setq sml/no-confirm-load-theme t)
+    (sml/apply-theme 'atom-one-dark)
+    (sml/setup)
+    (rich-minority-mode 1)
+
+    (display-time-mode)
+  ;  (load-theme 'modus-vivendi-deuteranopia' t)
+      ;  (load-theme 'modus-vivendi-tinted' t)
+  (load-theme 'dracula' t)
+#+END_SRC
+*** whitespace
+#+begin_src emacs-lisp
+  (global-whitespace-mode 1)
+  (setq whitespace-style
+        (quote (
+                face
+                trailing
+                lines-tail
+                empty
+                indention
+                spaces
+                space-mark
+                )))
+#+end_src
+*** fill indicator
+#+begin_src emacs-lisp
+  ;(global-display-fill-column-indicator-mode t)
+  (setq-default fill-column 80)
+#+end_src
+*** line number
+#+BEGIN_SRC emacs-lisp
+  ;(global-display-line-numbers-mode)
+#+END_SRC
+
+** dashboard
+An extensible emacs startup screen showing you what’s most important.
+
+#+begin_src emacs-lisp
+  (use-package dashboard
+
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-items '((projects . 5)
+                            (recents . 5)))
+    ;; Set the title
+    (setq dashboard-banner-logo-title "bazinevis.com/emacs")
+    ;; Set the banner
+    (setq dashboard-startup-banner "~/bazinevis_com_/config_/emacs_/bz.png")
+    ;; Content is not centered by default. To center, set
+    (setq dashboard-center-content t)
+    ;; To disable shortcut "jump" indicators for each section, set
+    (setq dashboard-show-shortcuts t))
+#+end_src
+
+** projectile
+#+begin_src emacs-lisp
+  (use-package projectile
+    :delight pro
+    :config (projectile-mode)
+    :custom ((projectile-completion-system 'ivy))
+    :bind-keymap
+    ("M-p" . projectile-command-map))
+  (setq projectile-project-search-path '("~/bazinevis_com_"))
+#+end_src
+** counsel-projectile
+#+begin_src emacs-lisp
+  (use-package counsel-projectile)
+#+end_src
+
+** Ivy/Counsel/Swiper
+Ivy is a completion *framework*. Emacs can use Ivy to narrow the search results as user types.
+
++ Alternatives:
+  helm, ido
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :delight)
+  (ivy-mode)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  ;; enable this if you want `swiper' to use it
+  ;; (setq search-default-mode #'char-fold-to-regexp)
+  (global-set-key "\C-s" 'swiper)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+#+END_SRC
+** Olivetti
+to center window. Olivetti is a minor mode and doesn't have global mode. to it
+as a global mode we need to define a function.
+#+begin_src emacs-lisp
+  (use-package olivetti)
+#+END_SRC
+** expand region
+#+begin_src emacs-lisp
+  (use-package expand-region
+    :bind ("C-=" . er/expand-region))
+#+end_src
+** crux
+#+begin_src emacs-lisp
+  (use-package crux
+    )
+#+end_src
+** consult
+#+begin_src emacs-lisp
+  (use-package consult
+    ;; Replace bindings. Lazily loaded due by `use-package'.
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+           ;; M-g bindings in `goto-map'
+           ("M-g e" . consult-compile-error)
+           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ;; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings in `search-map'
+           ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+    ;; Enable automatic preview at point in the *Completions* buffer. This is
+    ;; relevant when you use the default completion UI.
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+
+    ;; The :init configuration is always executed (Not lazy)
+    :init
+
+    ;; Optionally configure the register formatting. This improves the register
+    ;; preview for `consult-register', `consult-register-load',
+    ;; `consult-register-store' and the Emacs built-ins.
+    (setq register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
+
+    ;; Optionally tweak the register preview window.
+    ;; This adds thin lines, sorting and hides the mode line of the window.
+    (advice-add #'register-preview :override #'consult-register-window)
+
+    ;; Use Consult to select xref locations with preview
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+
+    ;; Configure other variables and modes in the :config section,
+    ;; after lazily loading the package.
+    :config
+
+    ;; Optionally configure preview. The default value
+    ;; is 'any, such that any key triggers the preview.
+    ;; (setq consult-preview-key 'any)
+    ;; (setq consult-preview-key "M-.")
+    ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+    (consult-customize
+     consult-theme :preview-key '(:debounce 0.2 any)
+     consult-ripgrep consult-git-grep consult-grep
+     consult-bookmark consult-recent-file consult-xref
+     consult--source-bookmark consult--source-file-register
+     consult--source-recent-file consult--source-project-recent-file
+     ;; :preview-key "M-."
+     :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
+    (setq consult-narrow-key "<") ;; "C-+"
+
+    ;; Optionally make narrowing help available in the minibuffer.
+    ;; You may want to use `embark-prefix-help-command' or which-key instead.
+    ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+    ;; Optionally configure a different project root function.
+    ;;;; 1. project.el (the default)
+    ;; (setq consult-project-function #'consult--default-project--function)
+    ;;;; 2. vc.el (vc-root-dir)
+    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+    ;;;; 3. locate-dominating-file
+    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+    ;;;; 4. projectile.el (projectile-project-root)
+    ;; (autoload 'projectile-project-root "projectile")
+    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+    ;;;; 5. No project support
+    ;; (setq consult-project-function nil)
+    )
+#+end_src
+** delight
+#+begin_src emacs-lisp
+  (use-package delight)
+#+end_src
+
+** aggressive-indent
+#+begin_src emacs-lisp
+  (use-package aggressive-indent
+
+    :config
+    (global-aggressive-indent-mode 1))
+#+end_src
+** dimmer
+#+begin_src emacs-lisp
+  (use-package dimmer
+
+    :config
+    (setq dimmer-fraction 0.4)
+    (setq dimmer-adjustment-mode :foreground)
+    (setq dimmer-use-colorspace :rgb)
+    (dimmer-mode 1))
+#+end_src
+** highlight current line
+#+begin_src emacs-lisp
+  (global-hl-line-mode nil)
+
+  (set-face-attribute 'line-number-current-line nil
+                      :foreground "#ffff00"
+                      :background "#696969"
+                      :weight 'bold
+                      :box t)
+#+END_SRC
+** marginalia
+#+BEGIN_SRC emacs-lisp
+  (use-package marginalia
+
+    :defer 5
+    :config
+    (marginalia-mode))
+#+END_SRC
+** smartparens
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens-mode
+    :ensure smartparens  ;; install the package
+    :delight
+    :hook (prog-mode text-mode markdown-mode)
+    :config
+    ;; load default config
+    (require 'smartparens-config)
+    (smartparens-global-mode))
+#+END_SRC
+** imenu-list
+This Emacs minor-mode creates an automatically updated buffer called *Ilist* that is populated with the current buffer's imenu entries. The *Ilist* buffer is typically shown as a sidebar (Emacs vertically splits the window).
+
+To activate imenu-list manually, use M-x imenu-list-minor-mode.
+To activate it automatically on startup, add this to your init file: (imenu-list-minor-mode)
+
+You can also use M-x imenu-list-smart-toggle to toggle imenu-list (and its window) on and off. You may wish to bind it to a key, for example C-':
+
+(global-set-key (kbd "C-'") #'imenu-list-smart-toggle)
+
+The old suggestion was to bind imenu-list-minor-mode; however, imenu-list-minor-mode does not take the visibility of the *Ilist* buffer into account, and only checks the current value of imenu-list-minor-mode. The smart-toggle enables or disables the minor-mode depending on the visibility of the *Ilist* buffer.
+
+The imenu of the current buffer will be displayed in the *Ilist* buffer. From the *Ilist* buffer, you can use these shortcuts:
+
+    <enter>: goto entry under cursor, or toggle case-folding.
+    <space>: display entry under cursor, but *Ilist* buffer remains current
+    <mouse click>: same as <enter>
+    <tab>: expand/collapse subtree (hs-toggle-hiding)
+    f: same as <tab>
+    n: next line
+    p: previous line
+    g: manually refresh entries
+    q: quit window and disable imenu-list-minor-mode
+
+Some users might prefer the imenu-list-minor-mode/imenu-list-smart-toggle commands to also set the focus to the *Ilist* window. To do so, use the variable imenu-list-focus-after-activation:
+
+(setq imenu-list-focus-after-activation t)
+
+The size of *Ilist* window can be automatically resized every time the *Ilist* buffer is updated. To do so, use the variable imenu-list-auto-resize:
+
+(setq imenu-list-auto-resize t)
+
+Note that the width of the window won't be resized if you're using emacs 24.3 or older. That's because of a limitation in fit-window-to-buffer. It is possible to take further actions every time the *Ilist* buffer is updated, by using the hook imenu-list-update-hook.
+
+After jumping to an entry from the *Ilist* buffer, e.g. by pressing <enter> or <space>, the target buffer will be recentered so the cursor is in the middle. To cancel that, reset the hook imenu-list-after-jump-hook:
+
+(setq imenu-list-after-jump-hook nil)
+
+To use a different recentering logic, for example recenter-top-bottom, use the following:
+
+(setq imenu-list-after-jump-hook nil)
+(add-hook 'imenu-list-after-jump-hook #'recenter-top-bottom)
+#+begin_src emacs-lisp
+  (use-package imenu-list
+    :config
+    (imenu-list-minor-mode)
+    (global-set-key (kbd "s-z i") #'imenu-list-smart-toggle)
+    (setq imenu-list-focus-after-activation t)
+    (setq imenu-list-auto-resize t))
+#+end_src
+** embark
+#+BEGIN_SRC emacs-lisp
+  (use-package embark
+
+    :defer 5
+    :bind
+    (("C-." . embark-act)         ;; pick some comfortable binding
+     ("C-;" . embark-dwim)        ;; good alternative: M-.
+     ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+    :init
+
+    ;; Optionally replace the key help with a completing-read interface
+    (setq prefix-help-command #'embark-prefix-help-command)
+
+    ;; Show the Embark target at point via Eldoc. You may adjust the
+    ;; Eldoc strategy, if you want to see the documentation from
+    ;; multiple providers. Beware that using this can be a little
+    ;; jarring since the message shown in the minibuffer can be more
+    ;; than one line, causing the modeline to move up and down:
+
+    ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+    ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+    :config
+
+    ;; Hide the mode line of the Embark live/completions buffers
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none)))))
+
+  ;; Consult users will also want the embark-consult package.
+  (use-package embark-consult
+     ; only need to install it, embark loads it after consult if found
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+** grammar check
+#+begin_src emacs-lisp
+  (setq langtool-java-classpath
+        "/usr/share/languagetool:/usr/share/java/languagetool/*")
+  (global-set-key "\C-x4w" 'langtool-check)
+  (global-set-key "\C-x4W" 'langtool-check-done)
+  (global-set-key "\C-x4l" 'langtool-switch-default-language)
+  (global-set-key "\C-x44" 'langtool-show-message-at-point)
+  (global-set-key "\C-x4c" 'langtool-interactive-correction)
+  (use-package langtool
+
+    :defer 5)
+#+end_src
+
+** vundo
+#+begin_src emacs-lisp
+  (use-package vundo
+
+    :defer 5)
+#+end_src
+# ** move text
+# #+begin_src emacs-lisp
+#   (defun move-text-internal (arg)
+#     (cond
+#      ((and mark-active transient-mark-mode)
+#       (if (> (point) (mark))
+#           (exchange-point-and-mark))
+#       (let ((column (current-column))
+#             (text (delete-and-extract-region (point) (mark))))
+#         (forward-line arg)
+#         (move-to-column column t)
+#         (set-mark (point))
+#         (insert text)
+#         (exchange-point-and-mark)
+#         (setq deactivate-mark nil)))
+#      (t
+#       (let ((column (current-column)))
+#         (beginning-of-line)
+#         (when (or (> arg 0) (not (bobp)))
+#           (forward-line)
+#           (when (or (< arg 0) (not (eobp)))
+#             (transpose-lines arg)
+#             (when (and (eval-when-compile
+#                          '(and (>= emacs-major-version 24)
+#                                (>= emacs-minor-version 3)))
+#                        (< arg 0))
+#               (forward-line -1)))
+#           (forward-line -1))
+#         (move-to-column column t)))))
+
+#   (defun move-text-down (arg)
+#     "Move region (transient-mark-mode active) or current line
+#     arg lines down."
+#     (interactive "*p")
+#     (move-text-internal arg))
+
+#   (defun move-text-up (arg)
+#     "Move region (transient-mark-mode active) or current line
+#     arg lines up."
+#     (interactive "*p")
+#     (move-text-internal (- arg)))
+
+
+#   (global-set-key [M-S-up] 'move-text-up)
+#   (global-set-key [M-S-down] 'move-text-down)
+# #+end_src
+** yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :config
+    ;(setq yas-snippet-dirs '("~/bazinevis_com_/config_/emacs_/snippets_"))
+    (yas-global-mode 1))
+#+END_SRC
+** yasnippet-snippets
+#+begin_src emacs-lisp
+  (use-package yasnippet-snippets)
+#+end_src
+** ivy-yasnippet
+#+begin_src emacs-lisp
+  (use-package ivy-yasnippet)
+#+end_src
+# ** all-the-icons
+# #+begin_src emacs-lisp
+#   (use-package all-the-icons)
+# #+end_src
+
+** which-key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :delight)
+  (which-key-mode)
+#+END_SRC
+
+** dart language
+#+BEGIN_SRC emacs-lisp
+  (use-package dart-mode)
+#+END_SRC
+** magit
+#+begin_src emacs-lisp
+  (use-package magit
+    :defer 5)
+#+end_src
+** fly-spell
+#+begin_src emacs-lisp
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+#+end_src
+
+** org-modern
+#+begin_src emacs-lisp
+  (use-package org-modern)
+  (setq
+   ;; Edit settings
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-catch-invisible-edits 'show-and-error
+   org-special-ctrl-a/e t
+   org-insert-heading-respect-content t
+
+   ;; Org styling, hide markup etc.
+   org-hide-emphasis-markers t
+   org-pretty-entities t
+   org-ellipsis " ⤵"
+
+   ;; Agenda styling
+   org-agenda-tags-column 0
+   org-agenda-block-separator ?─
+   org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+   org-agenda-current-time-string
+   "◀── now ─────────────────────────────────────────────────")
+  (with-eval-after-load 'org (global-org-modern-mode))
+                                          ;  (setq global-org-modern-mode t)
+#+end_src
+
+** toc-org
+#+begin_src emacs-lisp
+  (use-package toc-org)
+#+end_src
+** org
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file "~/bazinevis_com_/tasks.org")
+           "* TODO %?")
+          ("d" "Dictionary" entry (file "~/bazinevis_com_/dictionary.org")
+           "* %^{word} :: %^{definition}\n \+ %^{example}")
+          )
+        )
+  (global-set-key (kbd "s-z c") #'org-capture)
+  (add-hook 'org-mode-hook #'olivetti-mode)
+  (add-hook 'org-mode-hook #'display-line-numbers-mode)
+  (add-hook 'org-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'org-mode-hook #'toc-org-mode)
+#+END_SRC
+*** hide target
+#+BEGIN_SRC emacs-lisp
+  (defcustom org-hidden-links-additional-re "\\(<<\\)[[:alnum:]]+\\(>>\\)"
+    "Regular expression that matches strings where the invisible-property of the sub-matches 1 and 2 is set to org-link."
+    :type '(choice (const :tag "Off" nil) regexp)
+    :group 'org-link)
+  (make-variable-buffer-local 'org-hidden-links-additional-re)
+
+  (defun org-activate-hidden-links-additional (limit)
+    "Put invisible-property org-link on strings matching `org-hide-links-additional-re'."
+    (if org-hidden-links-additional-re
+        (re-search-forward org-hidden-links-additional-re limit t)
+      (goto-char limit)
+      nil))
+
+  (defun org-hidden-links-hook-function ()
+    "Add rule for `org-activate-hidden-links-additional' to `org-font-lock-extra-keywords'.
+  You can include this function in `org-font-lock-set-keywords-hook'."
+    (add-to-list 'org-font-lock-extra-keywords
+                 '(org-activate-hidden-links-additional
+                   (1 '(face org-target invisible org-link))
+                   (2 '(face org-target invisible org-link)))))
+
+  (add-hook 'org-font-lock-set-keywords-hook #'org-hidden-links-hook-function)
+#+END_SRC
+*** agenda
+#+begin_src emacs-lisp
+  (setq org-agenda-files '("~/bazinevis_com_"))
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "PROG(p)" "DONE(d)")))
+#+end_src
+# ** org-roam
+# #+BEGIN_SRC emacs-lisp
+#   ;; (use-package org-roam
+#   ;;   :bind (("C-c r c" . org-roam-capture)
+#   ;;          ("C-c n f" . org-roam-node-find)
+#   ;;          ("C-c n i" . org-roam-node-insert))
+#   ;;   :config
+#   ;;   (org-roam-setup))
+#   ;; (setq org-roam-directory (file-truename "~/bazinevis_com_"))
+#   ;; (setq org-roam-capture-templates
+#   ;;       '(
+#   ;;         ("p" "programming notes")
+#   ;;         ("pc" "concepts"
+#   ;;          plain "%?"
+#   ;;          :target (file+head "programming_/concepts_/${slug}.org"
+#   ;;                             "#+title: ${title}\n#+filetags: :PROGRAMMING:CONCEPTS:")
+#   ;;          :unnarrowed t)
+
+#   ;;         ("pd" "dart"
+#   ;;          plain "%?"
+#   ;;          :target (file+head "programming_/dart_/${slug}.org"
+#   ;;                             "#+title: ${title}\n#+filetags: :PROGRAMMING:DART:")
+#   ;;          :unnarrowed t)
+
+#   ;;         ("b" "books")
+#   ;;         ("bd" "dart"
+#   ;;          plain "%?"
+#   ;;          :target (file+head "books_/dart_/${slug}.org"
+#   ;;                             "#+title: ${title}\n")
+#   ;;          :unnarrowed t)
+#   ;;         )
+#   ;;       )
+# #+end_src
+** rainbow-delimiters
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters)
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+#+end_src
+
+** company
+#+begin_src emacs-lisp
+  (use-package company
+    :delight
+    :config
+    (global-company-mode t))
+#+end_src
+
+** drag-stuff
+#+begin_src emacs-lisp
+    (use-package drag-stuff
+      :config (drag-stuff-global-mode 1))
+#+end_src
+** pdf-tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :config
+    (pdf-tools-install))
+#+end_src
+** key-bindings
+| *key*   | *function*            | *description*                        |
+| M-q     | org-fill-paragraph    | fill element at point. word wrap  80 |
+| C-x n s | org-narrow-to-subtree | narrow buffer to current subtree     |
+| C-x n b | org-narrow-to-block   | narrow buffer to current block       |
+| C-x n w | widen                 | widen buffer to remove narrowing     |
+| C-M-j   | ivy-immdediate-done   | ivy exit with the current action.    |
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-o") 'other-window)
+                                          ; (global-set-key (kbd "M-,") 'keyboard-quit)
+#+end_src
+
+
+
+
+[[file:../programming_/emacs_lisp_/emacs_lisp.org][emacs_lisp]]
+https://blog.sumtypeofway.com/posts/emacs-config.html
+** origami
+#+begin_src emacs-lisp
+  (use-package origami
+  :config
+  (setq origami-fold-replacement "<V>")
+  (define-prefix-command 'origami-mode-map)
+  (global-set-key (kbd "C-x C-z") 'origami-mode-map)
+  (global-origami-mode)
+  :bind
+  (:map origami-mode-map
+   ("o" . origami-open-node)
+   ("O" . origami-open-node-recursively)
+   ("c" . origami-close-node)
+   ("C" . origami-close-node-recursively)
+   ("a" . origami-toggle-node)
+   ("A" . origami-recursively-toggle-node)
+   ("R" . origami-open-all-nodes)
+   ("M" . origami-close-all-nodes)
+   ("v" . origami-show-only-node)
+   ("k" . origami-previous-fold)
+   ("j" . origami-forward-fold)
+   ("x" . origami-reset)))
+  ;(add-hook 'org-mode-hook
+  ;        (lambda () (setq-local origami-fold-style 'triple-braces)))
+#+end_src
+** popper
+#+begin_src emacs-lisp
+  (use-package popper
+  :ensure t ; or :straight t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))                ; For echo area hints
+#+end_src
+
+* Documentation
+** Query Replace
+
+M-% string RET newstring RET
+
+    Replace some occurrences of string with newstring.
+C-M-% regexp RET newstring RET
+
+    Replace some matches for regexp with newstring.
+
+If you want to change only some of the occurrences of ‘foo’ to ‘bar’, not all of them, use M-% (query-replace). This command finds occurrences of ‘foo’ one by one, displays each occurrence and asks you whether to replace it. Aside from querying, query-replace works just like replace-string (see Unconditional Replacement). In particular, it preserves case provided that case-replace is non-nil, as it normally is (see Replace Commands and Lax Matches). A numeric argument means to consider only occurrences that are bounded by word-delimiter characters. A negative prefix argument replaces backward.
+
+C-M-% performs regexp search and replace (query-replace-regexp). It works like replace-regexp except that it queries like query-replace.
+
+You can reuse earlier replacements with these commands. When query-replace or query-replace-regexp prompts for the search string, use M-p and M-n to show previous replacements in the form ‘from -> to’, where from is the search pattern, to is its replacement, and the separator between them is determined by the value of the variable query-replace-from-to-separator. Type RET to select the desired replacement. If the value of this variable is nil, replacements are not added to the command history, and cannot be reused.
+
+These commands highlight the current match using the face query-replace. You can disable this highlight by setting the variable query-replace-highlight to nil. They highlight other matches using lazy-highlight just like incremental search (see Incremental Search); this can be disabled by setting query-replace-lazy-highlight to nil. By default, query-replace-regexp will show the substituted replacement string for the current match in the minibuffer. If you want to keep special sequences ‘\&’ and ‘\n’ unexpanded, customize query-replace-show-replacement variable. Like search-highlight-submatches highlights subexpressions in incremental search (see Tailoring Search to Your Needs), the variable query-replace-highlight-submatches defines whether to highlight subexpressions in the regexp replacement commands.
+
+The variable query-replace-skip-read-only, if set non-nil, will cause replacement commands to ignore matches in read-only text. The default is not to ignore them.
+
+The characters you can type when you are shown a match for the string or regexp are:
+
+SPC
+y
+
+    to replace the occurrence with newstring.
+DEL
+Delete
+BACKSPACE
+n
+
+    to skip to the next occurrence without replacing this one.
+, (Comma)
+
+    to replace this occurrence and display the result. You are then asked for another input character to say what to do next. Since the replacement has already been made, DEL and SPC are equivalent in this situation; both move to the next occurrence.
+
+    You can type C-r at this point (see below) to alter the replaced text. You can also undo the replacement with the undo command (e.g., type C-x u; see Undo); this exits the query-replace, so if you want to do further replacement you must use C-x ESC ESC RET to restart (see Repeating Minibuffer Commands).
+RET
+q
+
+    to exit without doing any more replacements.
+. (Period)
+
+    to replace this occurrence and then exit without searching for more occurrences.
+!
+
+    to replace all remaining occurrences without asking again.
+^
+
+    to go back to the position of the previous occurrence (or what used to be an occurrence), in case you changed it by mistake or want to reexamine it.
+u
+
+    to undo the last replacement and go back to where that replacement was made.
+U
+
+    to undo all the replacements and go back to where the first replacement was made.
+C-r
+
+    to enter a recursive editing level, in case the occurrence needs to be edited rather than just replaced with newstring. When you are done, exit the recursive editing level with C-M-c to proceed to the next occurrence. See Recursive Editing Levels.
+C-w
+
+    to delete the occurrence, and then enter a recursive editing level as in C-r. Use the recursive edit to insert text to replace the deleted occurrence of string. When done, exit the recursive editing level with C-M-c to proceed to the next occurrence.
+e
+
+    to edit the replacement string in the minibuffer. When you exit the minibuffer by typing RET, the minibuffer contents replace the current occurrence of the pattern. They also become the new replacement string for any further occurrences.
+E
+
+    is like e, but the next replacement will be done with exact case. I.e., if you have a query-replace from ‘foo’ to ‘bar’, a text like ‘Foo’ will be normally be replaced with ‘Bar’. Use this command to do the current replacement with exact case.
+C-l
+
+    to redisplay the screen. Then you must type another character to specify what to do with this occurrence.
+Y (Upper-case)
+
+    to replace all remaining occurrences in all remaining buffers in multi-buffer replacements (like the Dired Q command that performs query replace on selected files). It answers this question and all subsequent questions in the series with “yes”, without further user interaction.
+N (Upper-case)
+
+    to skip to the next buffer in multi-buffer replacements without replacing remaining occurrences in the current buffer. It answers this question “no”, gives up on the questions for the current buffer, and continues to the next buffer in the sequence.
+C-h
+?
+F1
+
+    to display a message summarizing these options. Then you must type another character to specify what to do with this occurrence.
+
+Aside from this, any other character exits the query-replace, and is then reread as part of a key sequence. Thus, if you type C-k, it exits the query-replace and then kills to end of line. In particular, C-g simply exits the query-replace.
+
+To restart a query-replace once it is exited, use C-x ESC ESC, which repeats the query-replace because it used the minibuffer to read its arguments. See C-x ESC ESC.
+
+The option search-invisible determines how query-replace treats invisible text. See Outline Search.
+
+See Operating on Files, for the Dired Q command which performs query replace on selected files. See also Transforming File Names in Dired, for Dired commands to rename, copy, or link files by replacing regexp matches in file names.
+** Motion
+
+The following commands jump to other headlines in the buffer.
+
+C-c C-n (org-next-visible-heading)
+
+    Next heading.
+C-c C-p (org-previous-visible-heading)
+
+    Previous heading.
+C-c C-f (org-forward-heading-same-level)
+
+    Next heading same level.
+C-c C-b (org-backward-heading-same-level)
+
+    Previous heading same level.
+C-c C-u (outline-up-heading)
+
+    Backward to higher level heading.
+C-c C-j (org-goto)
+
+    Jump to a different place without changing the current outline visibility. Shows the document structure in a temporary buffer, where you can use the following keys to find your destination:
+    TAB	Cycle visibility.
+    DOWN / UP	Next/previous visible headline.
+    RET	Select this location.
+    /	Do a Sparse-tree search
+
+    The following keys work if you turn off org-goto-auto-isearch
+    n / p	Next/previous visible headline.
+    f / b	Next/previous headline same level.
+    u	One level up.
+    0 … 9	Digit argument.
+    q	Quit.
+
+    See also the variable org-goto-interface.
