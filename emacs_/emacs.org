@@ -2,7 +2,7 @@
 #+STARTUP: align
 #+title: Emacs Configuration
 
-* Table of Contents :TOC_4:
+* Table of Contents :toc_4:
 - [[#documentation][Documentation]]
   - [[#query-replace][Query Replace]]
   - [[#motion][Motion]]
@@ -39,7 +39,6 @@
     - [[#ivy-yasnippet][ivy-yasnippet]]
     - [[#ivycounselswiper][Ivy/Counsel/Swiper]]
     - [[#magit][Magit]]
-    - [[#marginalia][marginalia]]
     - [[#olivetti][Olivetti]]
     - [[#org][org]]
       - [[#hide-target][hide target]]
@@ -56,7 +55,7 @@
     - [[#toc-org][toc-org]]
     - [[#vundo][vundo]]
     - [[#which-key][which-key]]
-    - [[#whitespace-cleanup][whitespace cleanup]]
+    - [[#whitespace-cleanup-mode][whitespace-cleanup-mode]]
     - [[#writegood][writegood]]
     - [[#yasnippet][yasnippet]]
     - [[#yasnippet-snippets][yasnippet-snippets]]
@@ -64,6 +63,8 @@
     - [[#counsel][counsel]]
     - [[#ivy][ivy]]
     - [[#org-1][org]]
+    - [[#crux][crux]]
+    - [[#vundo-1][vundo]]
 
 * TODO Documentation
 https://blog.sumtypeofway.com/posts/emacs-config.html
@@ -211,7 +212,7 @@ To find out, where do they belong to, use M-x describe-variable, M-x describe-fa
     (package-install 'use-package))
   (require 'use-package-ensure)
   (setq use-package-always-ensure t)
-  
+
   (use-package gcmh
     :config
     (gcmh-mode 1))
@@ -317,7 +318,7 @@ To find out, where do they belong to, use M-x describe-variable, M-x describe-fa
         (quote (
                 face
                 trailing
-                lines-tail
+                ;lines-tail
                 empty
                 indention
                 spaces
@@ -326,18 +327,17 @@ To find out, where do they belong to, use M-x describe-variable, M-x describe-fa
 #+end_src
 **** fill indicator
 #+begin_src emacs-lisp
-  ;(global-display-fill-column-indicator-mode t)
-  ;(setq-default fill-column 80)
+  (global-display-fill-column-indicator-mode t)
+  (setq-default fill-column 80)
 #+end_src
 **** line number
 #+BEGIN_SRC emacs-lisp
-  ;;;(global-display-line-numbers-mode)
+  (setq display-line-numbers-width-start t)
 #+END_SRC
 ** TODO Packages
 *** TODO aggressive-indent
 #+begin_src emacs-lisp
   (use-package aggressive-indent
-
     :config
     (global-aggressive-indent-mode 1))
 #+end_src
@@ -488,8 +488,8 @@ Most of the crux commands are related to the editing experience,
 but there are also a bunch of utility commands that are just very
 useful to have (e.g. crux-open-with and crux-reopen-as-root).
 
-crux doesn't setup any key-bindings for its commands out-of-the-box.
-There are several reasons for this:
+crux doesn't setup any key-bindings for its commands out-of-the-box. There
+are several reasons for this:
 
 Here's the list of some suggested keybindings. Feel free to bind
 individual commands to whatever key-bindings you prefer.
@@ -654,7 +654,6 @@ An extensible emacs startup screen showing you what’s most important.
 *** TODO dired
 #+begin_src emacs-lisp
   (use-package dired-hide-dotfiles
-    :ensure t
     :bind
     (:map dired-mode-map
           ("." . dired-hide-dotfiles-mode))
@@ -743,13 +742,14 @@ An extensible emacs startup screen showing you what’s most important.
 
 *** TODO highlight current line
 #+begin_src emacs-lisp
-  (global-hl-line-mode nil)
+    (global-hl-line-mode nil)
 
-  (set-face-attribute 'line-number-current-line nil
-                      :foreground "#ffff00"
-                      :background "#696969"
-                      :weight 'bold
-                      :box t)
+    (set-face-attribute 'line-number-current-line nil
+                        :foreground "#ffff00"
+                        ;:background "#696969"
+                        :weight 'bold
+                        ;:box t
+                        )
 #+END_SRC
 *** TODO Hydra
 *** TODO imenu-list
@@ -818,32 +818,36 @@ Ivy is a completion *framework*. Emacs can use Ivy to narrow the search results 
   helm, ido
 
 #+BEGIN_SRC emacs-lisp
-   (use-package counsel
-     :delight)
-   (ivy-mode)
-   (setq ivy-use-virtual-buffers t)
-   (setq enable-recursive-minibuffers t)
-   ;; enable this if you want `swiper' to use it
-   ;; (setq search-default-mode #'char-fold-to-regexp)
-   (global-set-key (kbd "C-c C-r") 'ivy-resume)
-   (global-set-key (kbd "<f6>") 'ivy-resume)
-   (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-   (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-   (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
-   (global-set-key (kbd "<f1> l") 'counsel-find-library)
-   (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-   (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-   (global-set-key (kbd "C-c g") 'counsel-git)
-   (global-set-key (kbd "C-c j") 'counsel-git-grep)
-   (global-set-key (kbd "C-c k") 'counsel-ag)
-   (global-set-key (kbd "C-x l") 'counsel-locate)
-   (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+  (use-package counsel
+    :delight)
+                                          ; (ivy-mode)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  ;; enable this if you want `swiper' to use it
+  ;; (setq search-default-mode #'char-fold-to-regexp)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 
   (use-package all-the-icons-ivy
-   :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup))
+    :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup))
   (setq all-the-icons-ivy-file-commands
-      '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir))
+        '(counsel-find-file
+          counsel-file-jump
+          counsel-recentf
+          counsel-projectile-find-file
+          counsel-projectile-find-dir))
 
 #+END_SRC
 *** TODO Magit
@@ -851,19 +855,11 @@ Ivy is a completion *framework*. Emacs can use Ivy to narrow the search results 
   (use-package magit
     :defer 5)
 #+end_src
-*** TODO marginalia
-#+BEGIN_SRC emacs-lisp
-  (use-package marginalia
-
-    :defer 5
-    :config
-    (marginalia-mode))
-#+END_SRC
 *** TODO Olivetti
-to center window. Olivetti is a minor mode and doesn't have global mode. to it
-as a global mode we need to define a function.
 #+begin_src emacs-lisp
-  (use-package olivetti)
+  (use-package olivetti
+    :config
+    (setq-default olivetti-body-width 85))
 #+END_SRC
 *** TODO org
 #+begin_src emacs-lisp
@@ -876,8 +872,8 @@ as a global mode we need to define a function.
         )
   (global-set-key (kbd "s-z c") #'org-capture)
   (add-hook 'org-mode-hook #'olivetti-mode)
-  ;(add-hook 'org-mode-hook #'display-line-numbers-mode)
   (add-hook 'org-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'org-mode-hook #'display-line-numbers-mode)
   (add-hook 'org-mode-hook #'toc-org-mode)
   (add-hook 'org-mode-hook #'org-indent-mode)
   (setq org-ellipsis " ⤵")
@@ -1094,66 +1090,69 @@ Print File	C-c C-p
 #+begin_src emacs-lisp
   (use-package toc-org)
 #+end_src
-*** TODO vundo
+*** [[https://github.com/casouri/vundo][vundo]]
+Vundo (visual undo) displays the undo history as a tree and lets you move
+in the tree to go back to previous buffer states. To use vundo, type M-x
+vundo RET in the buffer you want to undo. An undo tree buffer should pop
+up. To move around, type:
+
+  f   to go forward
+  b   to go backward
+
+  n   to go to the node below when at a branch point
+  p   to go to the node above
+
+  a   to go back to the last branching point
+  e   to go forward to the end/tip of the branch
+  l   to go to the last saved node
+  r   to go to the next saved node
+
+  m   to mark the current node for diff
+  u   to unmark the marked node
+  d   to show a diff between the marked (or parent) and current nodes
+
+  q   to quit, you can also type C-g
+
+  C-c C-s (or whatever binding you used for save-buffer)
+      to save the buffer at the current undo state
+
+n/p may need some more explanation. In the following tree, n/p can
+move between A and B because they share a parent (thus at a branching
+point), but not C and D.
+
+         A  C
+    ──○━━○──○──○──○
+      ┃  ↕︎
+      ┗━━○──○──○
+         B  D
+
+By default, you need to press RET to “commit” your change and if you
+quit with q or C-g, the changes made by vundo are rolled back. You can
+set ‘vundo-roll-back-on-quit’ to nil to disable rolling back.
+
+You might see some green nodes in the tree, those are the buffer
+states that have been saved to disk; the last saved node is emphasized
+in bold. You can type "l" to jump to the last saved node.
+
 #+begin_src emacs-lisp
-  (use-package vundo
-
-    :defer 5)
+  (use-package vundo)
 #+end_src
-# ** move text
-# #+begin_src emacs-lisp
-#   (defun move-text-internal (arg)
-#     (cond
-#      ((and mark-active transient-mark-mode)
-#       (if (> (point) (mark))
-#           (exchange-point-and-mark))
-#       (let ((column (current-column))
-#             (text (delete-and-extract-region (point) (mark))))
-#         (forward-line arg)
-#         (move-to-column column t)
-#         (set-mark (point))
-#         (insert text)
-#         (exchange-point-and-mark)
-#         (setq deactivate-mark nil)))
-#      (t
-#       (let ((column (current-column)))
-#         (beginning-of-line)
-#         (when (or (> arg 0) (not (bobp)))
-#           (forward-line)
-#           (when (or (< arg 0) (not (eobp)))
-#             (transpose-lines arg)
-#             (when (and (eval-when-compile
-#                          '(and (>= emacs-major-version 24)
-#                                (>= emacs-minor-version 3)))
-#                        (< arg 0))
-#               (forward-line -1)))
-#           (forward-line -1))
-#         (move-to-column column t)))))
-
-
-#   (defun move-text-down (arg)
-#     "Move region (transient-mark-mode active) or current line
-#     arg lines down."
-#     (interactive "*p")
-#     (move-text-internal arg))
-
-#   (defun move-text-up (arg)
-#     "Move region (transient-mark-mode active) or current line
-#     arg lines up."
-#     (interactive "*p")
-#     (move-text-internal (- arg)))
-
-
-#   (global-set-key [M-S-up] 'move-text-up)
-#   (global-set-key [M-S-down] 'move-text-down)
-# #+end_src
 *** TODO which-key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :delight)
   (which-key-mode)
 #+END_SRC
-*** TODO whitespace cleanup
+*** [[https://github.com/purcell/whitespace-cleanup-mode][whitespace-cleanup-mode]]
+This Emacs library minor mode will intelligently call whitespace-cleanup
+before buffers are saved.
+
+whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
+before saving the current buffer, by default only if the whitespace in the
+buffer was initially clean. It determines this by quickly checking to see
+if whitespace-cleanup would have any effect on the buffer. With the custom
+variable whitespace-cleanup-mode-only-if-initially-clean toggled off, it will always clean up the buffer for you.
+
 #+begin_src emacs-lisp
   (use-package whitespace-cleanup-mode
     :config
@@ -1163,7 +1162,6 @@ Print File	C-c C-p
 *** TODO writegood
 #+begin_src emacs-lisp
   (use-package writegood-mode
-  :defer t
   :ensure t)
 #+end_src
 *** TODO yasnippet
@@ -1195,4 +1193,9 @@ Print File	C-c C-p
   (global-set-key (kbd "C-x n s")       'org-narrow-to-subtree)
   (global-set-key (kbd "C-x n b")       'org-narrow-to-block)
   (global-set-key (kbd "C-x n w")       'widen)
+#+end_src
+*** crux
+*** vundo
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-u")           'vundo)
 #+end_src
