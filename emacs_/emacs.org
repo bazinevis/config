@@ -2,205 +2,58 @@
 #+STARTUP: align
 #+title: Emacs Configuration
 
+The principle is *SIMPLICITY* and it means to use internal emacs packages and
+make initialization file as simple as possible. For example when working with
+repositories, "vc-mode" is preferred to "magit" and when working with projects
+"project.el" is preferred to "projectile".
+
 * Table of Contents :toc@4:
-- [[#documentation][Documentation]]
-  - [[#query-replace][Query Replace]]
-  - [[#motion][Motion]]
-- [[#configuration][Configuration]]
-  - [[#initialization][Initialization]]
-    - [[#setting-up-the-package-repositories][Setting Up the Package Repositories]]
-    - [[#cleaning-up-the-user-interface][Cleaning Up the User Interface]]
-      - [[#fonts][fonts]]
-      - [[#theme-and-mini-buffer][theme and mini-buffer]]
-      - [[#whitespace][whitespace]]
-      - [[#fill-indicator][fill indicator]]
-      - [[#line-number][line number]]
-  - [[#packages][Packages]]
-    - [[#vundo][vundo]]
-    - [[#whitespace-cleanup-mode][whitespace-cleanup-mode]]
-    - [[#expand-region][expand-region]]
-    - [[#all-the-icons][all-the-icons]]
-    - [[#rainbow-delimiters][rainbow-delimiters]]
-    - [[#dart-mode][dart-mode]]
-    - [[#toc-org][toc-org]]
-    - [[#org-bullet][org-bullet]]
-    - [[#dashboard][dashboard]]
-    - [[#aggressive-indent][aggressive-indent]]
-    - [[#consult][consult]]
-    - [[#crux][crux]]
-    - [[#delight][delight]]
-    - [[#dimmer][dimmer]]
-    - [[#dired][dired]]
-    - [[#drag-stuff][drag-stuff]]
-    - [[#embark][embark]]
-    - [[#fly-spell][fly-spell]]
-    - [[#flycheck][flycheck]]
-    - [[#grammar-check][grammar check]]
-    - [[#highlight-current-line][highlight current line]]
-    - [[#hydra][Hydra]]
-    - [[#vertico][vertico]]
-    - [[#magit][Magit]]
-    - [[#olivetti][Olivetti]]
-    - [[#org][org]]
-      - [[#hide-target][hide target]]
-      - [[#agenda][agenda]]
-    - [[#origami][Origami]]
-    - [[#pdf-tools][PDF-Tools]]
-      - [[#navigation][Navigation]]
-    - [[#popper][popper]]
-    - [[#projectile][projectile]]
-    - [[#project][project]]
-    - [[#quelpa][quelpa]]
-    - [[#smartparens][smartparens]]
-    - [[#marginalia][Marginalia]]
-    - [[#orderless][orderless]]
-    - [[#corfu][corfu]]
-    - [[#which-key][which-key]]
-    - [[#writegood][writegood]]
-    - [[#yasnippet][yasnippet]]
-    - [[#yasnippet-snippets][yasnippet-snippets]]
-  - [[#key-bindings][key-bindings]]
-    - [[#org-1][org]]
-    - [[#crux-1][crux]]
-    - [[#vundo-1][vundo]]
-    - [[#expand-region-1][expand-region]]
+- [[#initializing-package-manager][Initializing Package Manager]]
+- [[#setting-up-user-interface][Setting Up User Interface]]
+- [[#fonts][fonts]]
+- [[#theme-and-mini-buffer][theme and mini-buffer]]
+- [[#whitespace][whitespace]]
+- [[#fill-indicator][fill indicator]]
+- [[#line-number][line number]]
+- [[#dashboard][dashboard]]
+- [[#all-the-icons][all-the-icons]]
+- [[#dimmer][dimmer]]
+- [[#org-bullet][org-bullet]]
+- [[#rainbow-delimiters][rainbow-delimiters]]
+- [[#highlight-current-line][highlight current line]]
+- [[#whitespace-cleanup-mode][whitespace-cleanup-mode]]
+- [[#popper][popper]]
+- [[#olivetti][Olivetti]]
+- [[#aggressive-indent][aggressive-indent]]
+- [[#dart-mode][dart-mode]]
+- [[#origami][Origami]]
+- [[#project][project]]
+- [[#smartparens][smartparens]]
+- [[#consult][consult]]
+- [[#corfu][corfu]]
+- [[#crux][crux]]
+- [[#delight][delight]]
+- [[#dired][dired]]
+- [[#drag-stuff][drag-stuff]]
+- [[#expand-region][expand-region]]
+- [[#fly-spell][fly-spell]]
+- [[#grammar-check][grammar check]]
+- [[#org][org]]
+  - [[#hide-target][hide target]]
+  - [[#agenda][agenda]]
+- [[#pdf-tools][PDF-Tools]]
+  - [[#navigation][Navigation]]
+- [[#toc-org][toc-org]]
+- [[#vertico][vertico]]
+- [[#orderless][orderless]]
+- [[#vundo][vundo]]
+- [[#which-key][which-key]]
+- [[#yasnippet][yasnippet]]
 
-* TODO Documentation
-https://blog.sumtypeofway.com/posts/emacs-config.html
-[[file:../programming_/emacs_lisp_/emacs_lisp.org][emacs_lisp]]
-** Query Replace
+* Initializing Package Manager
 
-M-% string RET newstring RET
+[[http://www.bazinevis.com/emacs/use-package.html][use-package]]
 
-    Replace some occurrences of string with newstring.
-C-M-% regexp RET newstring RET
-
-    Replace some matches for regexp with newstring.
-
-If you want to change only some of the occurrences of ‘foo’ to ‘bar’, not all of them, use M-% (query-replace). This command finds occurrences of ‘foo’ one by one, displays each occurrence and asks you whether to replace it. Aside from querying, query-replace works just like replace-string (see Unconditional Replacement). In particular, it preserves case provided that case-replace is non-nil, as it normally is (see Replace Commands and Lax Matches). A numeric argument means to consider only occurrences that are bounded by word-delimiter characters. A negative prefix argument replaces backward.
-
-C-M-% performs regexp search and replace (query-replace-regexp). It works like replace-regexp except that it queries like query-replace.
-
-You can reuse earlier replacements with these commands. When query-replace or query-replace-regexp prompts for the search string, use M-p and M-n to show previous replacements in the form ‘from -> to’, where from is the search pattern, to is its replacement, and the separator between them is determined by the value of the variable query-replace-from-to-separator. Type RET to select the desired replacement. If the value of this variable is nil, replacements are not added to the command history, and cannot be reused.
-
-These commands highlight the current match using the face query-replace. You can disable this highlight by setting the variable query-replace-highlight to nil. They highlight other matches using lazy-highlight just like incremental search (see Incremental Search); this can be disabled by setting query-replace-lazy-highlight to nil. By default, query-replace-regexp will show the substituted replacement string for the current match in the minibuffer. If you want to keep special sequences ‘\&’ and ‘\n’ unexpanded, customize query-replace-show-replacement variable. Like search-highlight-submatches highlights subexpressions in incremental search (see Tailoring Search to Your Needs), the variable query-replace-highlight-submatches defines whether to highlight subexpressions in the regexp replacement commands.
-
-The variable query-replace-skip-read-only, if set non-nil, will cause replacement commands to ignore matches in read-only text. The default is not to ignore them.
-
-The characters you can type when you are shown a match for the string or regexp are:
-
-SPC
-y
-
-    to replace the occurrence with newstring.
-DEL
-Delete
-BACKSPACE
-n
-
-    to skip to the next occurrence without replacing this one.
-, (Comma)
-
-    to replace this occurrence and display the result. You are then asked for another input character to say what to do next. Since the replacement has already been made, DEL and SPC are equivalent in this situation; both move to the next occurrence.
-
-    You can type C-r at this point (see below) to alter the replaced text. You can also undo the replacement with the undo command (e.g., type C-x u; see Undo); this exits the query-replace, so if you want to do further replacement you must use C-x ESC ESC RET to restart (see Repeating Minibuffer Commands).
-RET
-q
-
-    to exit without doing any more replacements.
-. (Period)
-
-    to replace this occurrence and then exit without searching for more occurrences.
-!
-
-    to replace all remaining occurrences without asking again.
-^
-
-    to go back to the position of the previous occurrence (or what used to be an occurrence), in case you changed it by mistake or want to reexamine it.
-u
-
-    to undo the last replacement and go back to where that replacement was made.
-U
-
-    to undo all the replacements and go back to where the first replacement was made.
-C-r
-
-    to enter a recursive editing level, in case the occurrence needs to be edited rather than just replaced with newstring. When you are done, exit the recursive editing level with C-M-c to proceed to the next occurrence. See Recursive Editing Levels.
-C-w
-
-    to delete the occurrence, and then enter a recursive editing level as in C-r. Use the recursive edit to insert text to replace the deleted occurrence of string. When done, exit the recursive editing level with C-M-c to proceed to the next occurrence.
-e
-
-    to edit the replacement string in the minibuffer. When you exit the minibuffer by typing RET, the minibuffer contents replace the current occurrence of the pattern. They also become the new replacement string for any further occurrences.
-E
-
-    is like e, but the next replacement will be done with exact case. I.e., if you have a query-replace from ‘foo’ to ‘bar’, a text like ‘Foo’ will be normally be replaced with ‘Bar’. Use this command to do the current replacement with exact case.
-C-l
-
-    to redisplay the screen. Then you must type another character to specify what to do with this occurrence.
-Y (Upper-case)
-
-    to replace all remaining occurrences in all remaining buffers in multi-buffer replacements (like the Dired Q command that performs query replace on selected files). It answers this question and all subsequent questions in the series with “yes”, without further user interaction.
-N (Upper-case)
-
-    to skip to the next buffer in multi-buffer replacements without replacing remaining occurrences in the current buffer. It answers this question “no”, gives up on the questions for the current buffer, and continues to the next buffer in the sequence.
-C-h
-?
-F1
-
-    to display a message summarizing these options. Then you must type another character to specify what to do with this occurrence.
-
-Aside from this, any other character exits the query-replace, and is then reread as part of a key sequence. Thus, if you type C-k, it exits the query-replace and then kills to end of line. In particular, C-g simply exits the query-replace.
-
-To restart a query-replace once it is exited, use C-x ESC ESC, which repeats the query-replace because it used the minibuffer to read its arguments. See C-x ESC ESC.
-
-The option search-invisible determines how query-replace treats invisible text. See Outline Search.
-
-See Operating on Files, for the Dired Q command which performs query replace on selected files. See also Transforming File Names in Dired, for Dired commands to rename, copy, or link files by replacing regexp matches in file names.
-** Motion
-
-The following commands jump to other headlines in the buffer.
-
-C-c C-n (org-next-visible-heading)
-
-    Next heading.
-C-c C-p (org-previous-visible-heading)
-
-    Previous heading.
-C-c C-f (org-forward-heading-same-level)
-
-    Next heading same level.
-C-c C-b (org-backward-heading-same-level)
-
-    Previous heading same level.
-C-c C-u (outline-up-heading)
-
-    Backward to higher level heading.
-C-c C-j (org-goto)
-
-    Jump to a different place without changing the current outline visibility. Shows the document structure in a temporary buffer, where you can use the following keys to find your destination:
-    TAB	Cycle visibility.
-    DOWN / UP	Next/previous visible headline.
-    RET	Select this location.
-    /	Do a Sparse-tree search
-
-    The following keys work if you turn off org-goto-auto-isearch
-    n / p	Next/previous visible headline.
-    f / b	Next/previous headline same level.
-    u	One level up.
-    0 … 9	Digit argument.
-    q	Quit.
-
-    See also the variable org-goto-interface.
-* TODO Configuration
-** Initialization
-*** Setting Up the Package Repositories
-Use-package is an Emacs configuration manager (not a package manager!) that allows you to keep init file(s) clean, tidy and declarative.
-
-    use it for built-in packages/libraries too (without :ensure t)
-    each variable/face setting or each function call belongs to the one and only package which provides the symbol
-
-To find out, where do they belong to, use M-x describe-variable, M-x describe-face or M-x describe-function accordingly.
 #+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
@@ -211,12 +64,8 @@ To find out, where do they belong to, use M-x describe-variable, M-x describe-fa
     (package-install 'use-package))
   (require 'use-package-ensure)
   (setq use-package-always-ensure t)
-
-  (use-package gcmh
-    :config
-    (gcmh-mode 1))
 #+end_src
-*** Cleaning Up the User Interface
+* Setting Up User Interface
 #+begin_src emacs-lisp
   (setq
    ;; Don't show the startup screen
@@ -291,26 +140,25 @@ To find out, where do they belong to, use M-x describe-variable, M-x describe-fa
   ;; no need to shrow scroll bar
   (scroll-bar-mode -1)
 #+end_src
-**** fonts
+* fonts
 #+begin_src emacs-lisp
   (set-frame-font "Noto Sans Mono 10" nil t)
 #+end_src
-**** theme and mini-buffer
+* theme and mini-buffer
 #+BEGIN_SRC emacs-lisp
   (use-package dracula-theme)
   (use-package smart-mode-line)
-
   (use-package smart-mode-line-atom-one-dark-theme)
 
   (setq sml/no-confirm-load-theme t)
   (sml/apply-theme 'atom-one-dark)
   (sml/setup)
-  (rich-minority-mode 1)
+;;  (rich-minority-mode 1)
 
   (display-time-mode)
   (load-theme 'dracula' t)
 #+END_SRC
-**** whitespace
+* whitespace
 #+begin_src emacs-lisp
   (global-whitespace-mode 1)
   (setq whitespace-style
@@ -324,250 +172,36 @@ To find out, where do they belong to, use M-x describe-variable, M-x describe-fa
                 space-mark
                 )))
 #+end_src
-**** fill indicator
+* fill indicator
 #+begin_src emacs-lisp
   (global-display-fill-column-indicator-mode t)
   (setq-default fill-column 80)
 #+end_src
-**** line number
+* line number
 #+BEGIN_SRC emacs-lisp
   (setq display-line-numbers-width-start t)
 #+END_SRC
-** TODO Packages
-*** DONE [[https://github.com/casouri/vundo][vundo]]
-Vundo (visual undo) displays the undo history as a tree and lets you move
-in the tree to go back to previous buffer states. To use vundo, type M-x
-vundo RET in the buffer you want to undo. An undo tree buffer should pop
-up. To move around, type:
-
-+ f :: to go forward
-+ b :: to go backward
-+ n :: to go to the node below when at a branch point
-+ p :: to go to the node above
-+ a :: to go back to the last branching point
-+ e :: to go forward to the end/tip of the branch
-+ l :: to go to the last saved node
-+ r :: to go to the next saved node
-+ m :: to mark the current node for diff
-+ u :: to unmark the marked node
-+ d :: to show a diff between the marked (or parent) and current nodes
-+ q :: to quit, you can also type C-g
-+ C-x C-s :: save the buffer at the current undo state
-
-n/p may need some more explanation. In the following tree, n/p can
-move between A and B because they share a parent (thus at a branching
-point), but not C and D.
-
-         A  C
-    ──○━━○──○──○──○
-      ┃  ↕︎
-      ┗━━○──○──○
-         B  D
-
-By default, you need to press RET to “commit” your change and if you
-quit with q or C-g, the changes made by vundo are rolled back. You can
-set ‘vundo-roll-back-on-quit’ to nil to disable rolling back.
-
-You might see some green nodes in the tree, those are the buffer
-states that have been saved to disk; the last saved node is emphasized
-in bold. You can type "l" to jump to the last saved node.
-
-#+begin_src emacs-lisp
-  (use-package vundo)
-#+end_src
-
-*** DONE [[https://github.com/purcell/whitespace-cleanup-mode][whitespace-cleanup-mode]]
-This Emacs library minor mode will intelligently call whitespace-cleanup
-before buffers are saved.
-
-whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
-before saving the current buffer, by default only if the whitespace in the
-buffer was initially clean. It determines this by quickly checking to see
-if whitespace-cleanup would have any effect on the buffer. With the custom
-variable whitespace-cleanup-mode-only-if-initially-clean toggled off, it will always clean up the buffer for you.
-
-#+begin_src emacs-lisp
-  (use-package whitespace-cleanup-mode
-    :config
-    (global-whitespace-cleanup-mode))
-#+end_src
-
-*** DONE [[https://github.com/magnars/expand-region.el][expand-region]]
-Expand region increases the selected region by semantic units. Just keep
-pressing the key until it selects what you want.
-
-An example:
-
-(setq alphabet-start "abc def")
-
-With the cursor at the c, it starts by marking the entire word abc, then
-expand to the contents of the quotes abc def, then to the entire quote
-"abc def", then to the contents of the sexp setq alphabet-start "abc def"
-and finally to the entire sexp.
-
-You can set it up like this:
-
-(require 'expand-region)
-(global-set-key (kbd "C-=") 'er/expand-region)
-
-If you expand too far, you can contract the region by pressing - (minus
-key), or by prefixing the shortcut you defined with a negative argument:
-C-- C-=.
-
-Expand region works fairly well with most languages, due to the general
-nature of the basic expansions:
-
-er/mark-word
-er/mark-symbol
-er/mark-symbol-with-prefix
-er/mark-next-accessor
-er/mark-method-call
-er/mark-inside-quotes
-er/mark-outside-quotes
-er/mark-inside-pairs
-er/mark-outside-pairs
-er/mark-comment
-er/mark-url
-er/mark-email
-er/mark-defun
-
-However, most languages also will benefit from some specially crafted
-expansions. For instance, expand-region comes with these extra expansions
-for html-mode:
-
-er/mark-html-attribute
-er/mark-inner-tag
-er/mark-outer-tag
-
-You can add your own expansions to the languages of your choice simply by
-creating a function that looks around point to see if it's inside or
-looking at the construct you want to mark, and if so - mark it.
-
-There's plenty of examples to look at in these files.
-
-After you make your function, add it to a buffer-local version of the
-er/try-expand-list.
-
-Example:
-
-Let's say you want expand-region to also mark paragraphs and pages in
-text-mode. Incidentally Emacs already comes with mark-paragraph and
-mark-page. To add it to the try-list, do this:
-
-(defun er/add-text-mode-expansions ()
-  (make-variable-buffer-local 'er/try-expand-list)
-  (setq er/try-expand-list (append
-                            er/try-expand-list
-                            '(mark-paragraph
-                              mark-page))))
-
-(add-hook 'text-mode-hook 'er/add-text-mode-expansions)
-
-Add that to its own file, and add it to the expand-region.el-file, where
-it says "Mode-specific expansions"
-
-#+begin_src emacs-lisp
-  (use-package expand-region)
-#+end_src
-
-*** DONE [[https://github.com/domtronn/all-the-icons.el][all-the-icons]]
-In order for the icons to work it is very important that you install the
-Resource Fonts included in this package, they are available in the fonts
-directory. You can also install the latest fonts for this package in the
-(guessed?) based on the OS by calling the following function;
-
-M-x all-the-icons-install-fonts
-
-Bear in mind, this will also run fc-cache -f -v on MacOS and Linux which
-can take some time to complete.
-
-#+begin_src emacs-lisp
-  (use-package all-the-icons
-    :if (display-graphic-p))
-#+end_src
-
-*** DONE [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]
-rainbow-delimiters is a "rainbow parentheses"-like mode which highlights
-delimiters such as parentheses, brackets or braces according to their
-depth. Each successive level is highlighted in a different color. This
-makes it easy to spot matching delimiters, orient yourself in the code,
-and tell which statements are at a given depth.
-
-#+begin_src emacs-lisp
-  (use-package rainbow-delimiters)
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-#+end_src
-
-*** DONE [[https://github.com/emacsorphanage/dart-mode][dart-mode]]
-#+BEGIN_SRC emacs-lisp
-  (use-package dart-mode)
-#+END_SRC
-
-*** DONE [[https://github.com/snosov1/toc-org][toc-org]]
-toc-org helps you to have an up-to-date table of contents in org files
-without exporting.
-
-After the installation, every time you’ll be saving an org file, the first
-headline with a :TOC: tag will be updated with the current table of
-contents.
-
-For setting max depth of headlines in the table of contents we can specify
-the depth value after underline in the tag. For example:
-+ :TOC_2: - sets the max depth of the headlines in the table of contents
-  to 2 (the default)
-
-You can also use @ as separator, instead of _.
-
-If you call M-x org-open-at-point (C-c C-o) when you’re at a TOC entry,
-the point will jump to the corresponding heading.
-
-#+begin_src emacs-lisp
-  (use-package toc-org)
-#+end_src
-
-*** DONE [[https://github.com/sabof/org-bullets][org-bullet]]
-#+begin_src emacs-lisp
-  (use-package org-bullets
-    :config
-    (add-hook 'org-mode-hook #'org-bullets-mode))
-#+end_src
-
-*** TODO [[https://github.com/emacs-dashboard/emacs-dashboard][dashboard]]
+* [[https://github.com/emacs-dashboard/emacs-dashboard][dashboard]]
 An extensible emacs startup screen showing you what’s most important.
 Features
 
-    Displays an awesome Emacs banner!
-    Recent files
-    Bookmarks list
-    Recent projects list (Depends on `projectile` or `project.el` package)
-    Org mode agenda
-    Register list
-    Supports both all-the-icons and nerd-icons
-
-Screenshot
-
-./etc/screenshot.png
-Dependencies
++ Displays an awesome Emacs banner!
++ Recent files
++ Bookmarks list
++ Recent projects list (Depends on `projectile` or `project.el` package)
++ Org mode agenda
++ Register list
++ Supports both all-the-icons and nerd-icons
 
 You will need the following packages which are all available on MELPA:
 
-    page-break-lines (optional)
-    projectile (optional)
-    all-the-icons (optional)
-    nerd-icons (optional)
++ page-break-lines (optional)
++ projectile (optional)
++ all-the-icons (optional)
++ nerd-icons (optional)
 
-Usage
-
-M-x package-install RET dashboard
-
-Open the Dashboard
-
-You can set up the dashboard to open automatically at startup using dashboard-setup-startup-hook:
-
-(require 'dashboard)
-(dashboard-setup-startup-hook)
-
-Or with use-package:
+You can set up the dashboard to open automatically at startup using
+dashboard-setup-startup-hook:
 
 ;; use-package with package.el:
 (use-package dashboard
@@ -575,28 +209,18 @@ Or with use-package:
   :config
   (dashboard-setup-startup-hook))
 
-;; use-package with Elpaca:
-(use-package dashboard
-  :elpaca t
-  :config
-  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
-  (dashboard-setup-startup-hook))
+Alternatively, if you don’t want the dashboard to open by default, you
+can use the interactive function dashboard-open to open it when you do
+want it.
 
-Alternatively, if you don’t want the dashboard to open by default, you can use the interactive function dashboard-open to open it when you do want it.
+The widget “projects”, which shows a list of recent projects, is not
+enabled by default since it depends on packages that might not be
+available. To activate the widget, set the variable
+dashboard-projects-backend to either =’projectile= or =’project-el=, then
+add an entry like (projects . 5) to the variable dashboard-items.
 
-By default, the dashboard will show three lists, recent files and bookmarks and org-agenda items.
-
-The widget “projects”, which shows a list of recent projects, is not enabled by default since it depends on packages that might not be available. To activate the widget, set the variable dashboard-projects-backend to either =’projectile= (projectile, available from melpa) or =’project-el= (project.el, available from GNU elpa), then add an entry like (projects . 5) to the variable dashboard-items.
-
-The function dashboard-refresh-buffer (an alias for dashboard-open) can be used to visit and refresh the dashboard.
-Emacs Daemon
-
-In addition to the above, configure initial-buffer-choice to show Dashboard in frames created with emacsclient -c as follows:
-
-(setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
-
-Configuration
+The function dashboard-refresh-buffer (an alias for dashboard-open) can be
+used to visit and refresh the dashboard.
 
 To update the banner or banner title
 
@@ -808,15 +432,155 @@ g	Refresh contents
     (setq dashboard-icon-type 'all-the-icons)
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
+    (setq dashboard-projects-backend 'project-el)
     )
 #+end_src
-*** TODO aggressive-indent
+* [[https://github.com/domtronn/all-the-icons.el][all-the-icons]]
+In order for the icons to work it is very important that you install the
+Resource Fonts included in this package, they are available in the fonts
+directory. You can also install the latest fonts for this package in the
+(guessed?) based on the OS by calling the following function;
+
+M-x all-the-icons-install-fonts
+
+Bear in mind, this will also run fc-cache -f -v on MacOS and Linux which
+can take some time to complete.
+
+#+begin_src emacs-lisp
+  (use-package all-the-icons
+    :if (display-graphic-p))
+#+end_src
+
+* dimmer
+#+begin_src emacs-lisp
+  (use-package dimmer
+
+    :config
+    (setq dimmer-fraction 0.4)
+    (setq dimmer-adjustment-mode :foreground)
+    (setq dimmer-use-colorspace :rgb)
+    (dimmer-mode 1))
+#+end_src
+* [[https://github.com/sabof/org-bullets][org-bullet]]
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook #'org-bullets-mode))
+#+end_src
+
+* [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]
+rainbow-delimiters is a "rainbow parentheses"-like mode which highlights
+delimiters such as parentheses, brackets or braces according to their
+depth. Each successive level is highlighted in a different color. This
+makes it easy to spot matching delimiters, orient yourself in the code,
+and tell which statements are at a given depth.
+
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters)
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+#+end_src
+* highlight current line
+#+begin_src emacs-lisp
+    (global-hl-line-mode nil)
+
+    (set-face-attribute 'line-number-current-line nil
+                        :foreground "#ffff00"
+                        ;:background "#696969"
+                        :weight 'bold
+                        ;:box t
+                        )
+#+END_SRC
+* [[https://github.com/purcell/whitespace-cleanup-mode][whitespace-cleanup-mode]]
+This Emacs library minor mode will intelligently call whitespace-cleanup
+before buffers are saved.
+
+whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
+before saving the current buffer, by default only if the whitespace in the
+buffer was initially clean. It determines this by quickly checking to see
+if whitespace-cleanup would have any effect on the buffer. With the custom
+variable whitespace-cleanup-mode-only-if-initially-clean toggled off, it will always clean up the buffer for you.
+
+#+begin_src emacs-lisp
+  (use-package whitespace-cleanup-mode
+    :config
+    (global-whitespace-cleanup-mode))
+#+end_src
+
+* popper
+#+begin_src emacs-lisp
+  ;; (use-package popper
+  ;;   :bind (("C-`"   . popper-toggle)
+  ;;          ("M-`"   . popper-cycle)
+  ;;          ("C-M-`" . popper-toggle-type))
+  ;;   :init
+  ;;   (setq (opper-reference-buffers
+  ;;          '("\\*Messages\\*"
+  ;;            "Output\\*$"
+  ;;            "\\*Async Shell Command\\*"
+  ;;            help-mode
+  ;;            compilation-mode))
+  ;;         (popper-mode +1)
+  ;;         (popper-echo-mode +1))
+#+end_src
+* Olivetti
+#+begin_src emacs-lisp
+  (use-package olivetti
+    :config
+    (setq-default olivetti-body-width 100))
+#+END_SRC
+* aggressive-indent
 #+begin_src emacs-lisp
   (use-package aggressive-indent
     :config
     (global-aggressive-indent-mode 1))
 #+end_src
-*** TODO consult
+* [[https://github.com/emacsorphanage/dart-mode][dart-mode]]
+#+BEGIN_SRC emacs-lisp
+  (use-package dart-mode)
+#+END_SRC
+
+* Origami
+# #+begin_src emacs-lisp
+#   (use-package origami
+#   :config
+#   (setq origami-fold-replacement "<V>")
+#   (define-prefix-command 'origami-mode-map)
+#   (global-set-key (kbd "C-x C-z") 'origami-mode-map)
+#   (global-origami-mode)
+#   :bind
+#   (:map origami-mode-map
+#    ("o" . origami-open-node)
+#    ("O" . origami-open-node-recursively)
+#    ("c" . origami-close-node)
+#    ("C" . origami-close-node-recursively)
+#    ("a" . origami-toggle-node)
+#    ("A" . origami-recursively-toggle-node)
+#    ("R" . origami-open-all-nodes)
+#    ("M" . origami-close-all-nodes)
+#    ("v" . origami-show-only-node)
+#    ("k" . origami-previous-fold)
+#    ("j" . origami-forward-fold)
+#    ("x" . origami-reset)))
+#   ;(add-hook 'org-mode-hook
+#   ;        (lambda () (setq-local origami-fold-style 'triple-braces)))
+# #+end_src
+* project
+#+begin_src emacs-lisp
+  (use-package project)
+#+end_src
+
+* smartparens
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens-mode
+    :ensure smartparens  ;; install the package
+    :delight
+    :hook (prog-mode text-mode markdown-mode)
+    :config
+    ;; load default config
+    (require 'smartparens-config)
+    (smartparens-global-mode))
+#+END_SRC
+* consult
 #+begin_src emacs-lisp
   (use-package consult
     ;; Replace bindings. Lazily loaded due by `use-package'.
@@ -937,7 +701,99 @@ g	Refresh contents
     ;; (setq consult-project-function nil)
     )
 #+end_src
-*** TODO crux
+* corfu
+#+begin_src emacs-lisp
+  (use-package corfu
+    ;; Optional customizations
+    ;; :custom
+    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    ;; (corfu-auto t)                 ;; Enable auto completion
+    ;; (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
+
+    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+    ;; be used globally (M-/).  See also the customization variable
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode))
+  ;; A few more useful configurations...
+  (use-package emacs
+    :init
+    ;; TAB cycle if there are only few candidates
+    (setq completion-cycle-threshold 3)
+
+    ;; Enable indentation+completion using the TAB key.
+    ;; `completion-at-point' is often bound to M-TAB.
+    (setq tab-always-indent 'complete)
+
+    ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
+    ;; try `cape-dict'.
+    (setq text-mode-ispell-word-completion nil)
+   
+    ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
+    ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
+    ;; setting is useful beyond Corfu.
+    (setq read-extended-command-predicate #'command-completion-default-include-p))
+  ;; Enable auto completion and configure quitting
+  (setq corfu-auto t
+        corfu-quit-no-match 'separator) ;; or t
+  (setq-local corfu-auto        t
+              corfu-auto-delay  0 ;; TOO SMALL - NOT RECOMMENDED
+              corfu-auto-prefix 3 ;; TOO SMALL - NOT RECOMMENDED
+              completion-styles '(basic))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package cape
+    ;; Bind dedicated completion commands
+    ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+    :bind (("C-c p p" . completion-at-point) ;; capf
+           ("C-c p t" . complete-tag)        ;; etags
+           ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+           ("C-c p h" . cape-history)
+           ("C-c p f" . cape-file)
+           ("C-c p k" . cape-keyword)
+           ("C-c p s" . cape-elisp-symbol)
+           ("C-c p e" . cape-elisp-block)
+           ("C-c p a" . cape-abbrev)
+           ("C-c p l" . cape-line)
+           ("C-c p w" . cape-dict)
+           ("C-c p :" . cape-emoji)
+           ("C-c p \\" . cape-tex)
+           ("C-c p _" . cape-tex)
+           ("C-c p ^" . cape-tex)
+           ("C-c p &" . cape-sgml)
+           ("C-c p r" . cape-rfc1345))
+    :init
+    ;; Add to the global default value of `completion-at-point-functions' which is
+    ;; used by `completion-at-point'.  The order of the functions matters, the
+    ;; first function returning a result wins.  Note that the list of buffer-local
+    ;; completion functions takes precedence over the global list.
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+    (add-to-list 'completion-at-point-functions #'cape-history)
+    (add-to-list 'completion-at-point-functions #'cape-keyword)
+    (add-to-list 'completion-at-point-functions #'cape-tex)
+    (add-to-list 'completion-at-point-functions #'cape-sgml)
+    (add-to-list 'completion-at-point-functions #'cape-rfc1345)
+    (add-to-list 'completion-at-point-functions #'cape-abbrev)
+    (add-to-list 'completion-at-point-functions #'cape-dict)
+;;    (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+;;    (add-to-list 'completion-at-point-functions #'cape-line)
+  )
+#+end_src
+* crux
 A Collection of Ridiculously Useful eXtensions for Emacs. crux
 bundles many useful interactive commands to enhance your overall
 Emacs experience.
@@ -1071,22 +927,12 @@ Crux provides a crux-reopen-as-root command for reopening a file as root. This g
 #+begin_src emacs-lisp
   (use-package crux)
 #+end_src
-*** TODO delight
+* delight
 #+begin_src emacs-lisp
   (use-package delight)
 #+end_src
 
-*** TODO dimmer
-#+begin_src emacs-lisp
-  (use-package dimmer
-
-    :config
-    (setq dimmer-fraction 0.4)
-    (setq dimmer-adjustment-mode :foreground)
-    (setq dimmer-use-colorspace :rgb)
-    (dimmer-mode 1))
-#+end_src
-*** TODO dired
+* dired
 #+begin_src emacs-lisp
   (use-package dired-hide-dotfiles
     :bind
@@ -1101,62 +947,98 @@ Crux provides a crux-reopen-as-root command for reopening a file as root. This g
     (setq dired-dwim-target t)
 #+end_src
 
-*** TODO drag-stuff
+* drag-stuff
 #+begin_src emacs-lisp
     (use-package drag-stuff
       :config (drag-stuff-global-mode 1))
 #+end_src
-*** TODO embark
-# #+BEGIN_SRC emacs-lisp
-#   (use-package embark
+* [[https://github.com/magnars/expand-region.el][expand-region]]
+Expand region increases the selected region by semantic units. Just keep
+pressing the key until it selects what you want.
 
-#     :defer 5
-#     :bind
-#     (("C-." . embark-act)         ;; pick some comfortable binding
-#      ("C-;" . embark-dwim)        ;; good alternative: M-.
-#      ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+An example:
 
-#     :init
+(setq alphabet-start "abc def")
 
-#     ;; Optionally replace the key help with a completing-read interface
-#     (setq prefix-help-command #'embark-prefix-help-command)
+With the cursor at the c, it starts by marking the entire word abc, then
+expand to the contents of the quotes abc def, then to the entire quote
+"abc def", then to the contents of the sexp setq alphabet-start "abc def"
+and finally to the entire sexp.
 
-#     ;; Show the Embark target at point via Eldoc. You may adjust the
-#     ;; Eldoc strategy, if you want to see the documentation from
-#     ;; multiple providers. Beware that using this can be a little
-#     ;; jarring since the message shown in the minibuffer can be more
-#     ;; than one line, causing the modeline to move up and down:
+You can set it up like this:
 
-#     ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-#     ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
 
-#     :config
+If you expand too far, you can contract the region by pressing - (minus
+key), or by prefixing the shortcut you defined with a negative argument:
+C-- C-=.
 
-#     ;; Hide the mode line of the Embark live/completions buffers
-#     (add-to-list 'display-buffer-alist
-#                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-#                    nil
-#                    (window-parameters (mode-line-format . none)))))
+Expand region works fairly well with most languages, due to the general
+nature of the basic expansions:
 
-#   ;; Consult users will also want the embark-consult package.
-#   (use-package embark-consult
-#      ; only need to install it, embark loads it after consult if found
-#     :hook
-#     (embark-collect-mode . consult-preview-at-point-mode))
-# #+end_src
-*** TODO fly-spell
+er/mark-word
+er/mark-symbol
+er/mark-symbol-with-prefix
+er/mark-next-accessor
+er/mark-method-call
+er/mark-inside-quotes
+er/mark-outside-quotes
+er/mark-inside-pairs
+er/mark-outside-pairs
+er/mark-comment
+er/mark-url
+er/mark-email
+er/mark-defun
+
+However, most languages also will benefit from some specially crafted
+expansions. For instance, expand-region comes with these extra expansions
+for html-mode:
+
+er/mark-html-attribute
+er/mark-inner-tag
+er/mark-outer-tag
+
+You can add your own expansions to the languages of your choice simply by
+creating a function that looks around point to see if it's inside or
+looking at the construct you want to mark, and if so - mark it.
+
+There's plenty of examples to look at in these files.
+
+After you make your function, add it to a buffer-local version of the
+er/try-expand-list.
+
+Example:
+
+Let's say you want expand-region to also mark paragraphs and pages in
+text-mode. Incidentally Emacs already comes with mark-paragraph and
+mark-page. To add it to the try-list, do this:
+
+(defun er/add-text-mode-expansions ()
+  (make-variable-buffer-local 'er/try-expand-list)
+  (setq er/try-expand-list (append
+                            er/try-expand-list
+                            '(mark-paragraph
+                              mark-page))))
+
+(add-hook 'text-mode-hook 'er/add-text-mode-expansions)
+
+Add that to its own file, and add it to the expand-region.el-file, where
+it says "Mode-specific expansions"
+
+#+begin_src emacs-lisp
+  (use-package expand-region)
+#+end_src
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-=")           'er/expand-region)
+#+end_src
+
+* fly-spell
 #+begin_src emacs-lisp
   (add-hook 'text-mode-hook 'flyspell-mode)
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 #+end_src
-*** TODO flycheck
-# #+begin_src emacs-lisp
-#   (use-package flycheck-grammarly
-#     :defer ;TODO:
-#     :quelpa
-#     (flycheck-grammarly :repo "jcs-elpa/flycheck-grammarly"  :fetcher github))
-# #+end_src
-*** TODO grammar check
+* grammar check
 #+begin_src emacs-lisp
   (setq langtool-java-classpath
         "/usr/share/languagetool:/usr/share/java/languagetool/*")
@@ -1165,84 +1047,10 @@ Crux provides a crux-reopen-as-root command for reopening a file as root. This g
   (global-set-key "\C-x4l" 'langtool-switch-default-language)
   (global-set-key "\C-x44" 'langtool-show-message-at-point)
   (global-set-key "\C-x4c" 'langtool-interactive-correction)
-  (use-package langtool
-
-    :defer 5)
+  (use-package langtool)
 #+end_src
 
-*** TODO highlight current line
-#+begin_src emacs-lisp
-    (global-hl-line-mode nil)
-
-    (set-face-attribute 'line-number-current-line nil
-                        :foreground "#ffff00"
-                        ;:background "#696969"
-                        :weight 'bold
-                        ;:box t
-                        )
-#+END_SRC
-*** TODO Hydra
-*** TODO vertico
-#+BEGIN_SRC emacs-lisp
-  (use-package vertico
-    :init
-    (vertico-mode)
-
-    ;; Different scroll margin
-    ;; (setq vertico-scroll-margin 0)
-    ;; Show more candidates
-    ;; (setq vertico-count 20)
-
-    ;; Grow and shrink the Vertico minibuffer
-    ;; (setq vertico-resize t)
-
-    ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-    ;; (setq vertico-cycle t)
-    )
-  ;; Persist history over Emacs restarts. Vertico sorts by history position.
-  (use-package savehist
-    :init
-    (savehist-mode))
-
-  ;; A few more useful configurations...
-  (use-package emacs
-    :init
-    ;; Add prompt indicator to `completing-read-multiple'.
-    ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-    (defun crm-indicator (args)
-      (cons (format "[CRM%s] %s"
-                    (replace-regexp-in-string
-                     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                     crm-separator)
-                    (car args))
-            (cdr args)))
-    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-    ;; Do not allow the cursor in the minibuffer prompt
-    (setq minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt))
-    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-    ;; Support opening new minibuffers from inside existing minibuffers.
-    (setq enable-recursive-minibuffers t)
-
-    ;; Emacs 28 and newer: Hide commands in M-x which do not work in the current
-    ;; mode.  Vertico commands are hidden in normal buffers. This setting is
-    ;; useful beyond Vertico.
-    (setq read-extended-command-predicate #'command-completion-default-include-p))
-#+END_SRC
-*** TODO Magit
-#+begin_src emacs-lisp
-  (use-package magit
-    :defer 5)
-#+end_src
-*** TODO Olivetti
-#+begin_src emacs-lisp
-  (use-package olivetti
-    :config
-    (setq-default olivetti-body-width 85))
-#+END_SRC
-*** TODO org
+* org
 #+begin_src emacs-lisp
   (setq org-capture-templates
         '(("t" "Todo" entry (file "~/bazinevis_com_/tasks.org")
@@ -1259,7 +1067,13 @@ Crux provides a crux-reopen-as-root command for reopening a file as root. This g
   (add-hook 'org-mode-hook #'org-indent-mode)
   (setq org-ellipsis " ⤵")
 #+END_SRC
-**** hide target
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-q")           'org-fill-paragraph)
+  (global-set-key (kbd "C-x n s")       'org-narrow-to-subtree)
+  (global-set-key (kbd "C-x n b")       'org-narrow-to-block)
+  (global-set-key (kbd "C-x n w")       'widen)
+#+end_src
+** hide target
 #+BEGIN_SRC emacs-lisp
   (defcustom org-hidden-links-additional-re "\\(<<\\)[[:alnum:]]+\\(>>\\)"
     "Regular expression that matches strings where the invisible-property of the sub-matches 1 and 2 is set to org-link."
@@ -1284,7 +1098,7 @@ Crux provides a crux-reopen-as-root command for reopening a file as root. This g
 
   (add-hook 'org-font-lock-set-keywords-hook #'org-hidden-links-hook-function)
 #+END_SRC
-**** agenda
+** agenda
 #+begin_src emacs-lisp
   (setq org-agenda-files '("~/bazinevis_com_"))
   (setq org-todo-keywords
@@ -1323,33 +1137,8 @@ Crux provides a crux-reopen-as-root command for reopening a file as root. This g
 #   ;;         )
 #   ;;       )
 # #+end_src
-*** TODO Origami
-# #+begin_src emacs-lisp
-#   (use-package origami
-#   :config
-#   (setq origami-fold-replacement "<V>")
-#   (define-prefix-command 'origami-mode-map)
-#   (global-set-key (kbd "C-x C-z") 'origami-mode-map)
-#   (global-origami-mode)
-#   :bind
-#   (:map origami-mode-map
-#    ("o" . origami-open-node)
-#    ("O" . origami-open-node-recursively)
-#    ("c" . origami-close-node)
-#    ("C" . origami-close-node-recursively)
-#    ("a" . origami-toggle-node)
-#    ("A" . origami-recursively-toggle-node)
-#    ("R" . origami-open-all-nodes)
-#    ("M" . origami-close-all-nodes)
-#    ("v" . origami-show-only-node)
-#    ("k" . origami-previous-fold)
-#    ("j" . origami-forward-fold)
-#    ("x" . origami-reset)))
-#   ;(add-hook 'org-mode-hook
-#   ;        (lambda () (setq-local origami-fold-style 'triple-braces)))
-# #+end_src
-*** TODO PDF-Tools
-**** Navigation
+* PDF-Tools
+** Navigation
 + Scroll Up / Down by Page-full :: space / backspace
 Scroll Up / Down by Line	C-n / C-p
 Scroll Right / Left	C-f / C-b
@@ -1406,222 +1195,120 @@ Print File	C-c C-p
     :config
     (pdf-tools-install))
 #+end_src
-*** TODO popper
-# #+begin_src emacs-lisp
-#   (use-package popper
-#     :bind (("C-`"   . popper-toggle)
-#            ("M-`"   . popper-cycle)
-#            ("C-M-`" . popper-toggle-type))
-#     :init
-#     (setq (opper-reference-buffers
-#            '("\\*Messages\\*"
-#              "Output\\*$"
-#              "\\*Async Shell Command\\*"
-#              help-mode
-#              compilation-mode))
-#           (popper-mode +1)
-#           (popper-echo-mode +1))                ; For echo area hints
-# #+end_src
-*** TODO projectile
-# #+begin_src emacs-lisp
-#   (use-package projectile
-#     :delight pro
-#     :config (projectile-mode)
-#     :bind-keymap
-#     ("M-p" . projectile-command-map))
-#   (setq projectile-project-search-path '("~/bazinevis_com_"))
-# #+end_src
-*** project
+* [[https://github.com/snosov1/toc-org][toc-org]]
+toc-org helps you to have an up-to-date table of contents in org files
+without exporting.
+
+After the installation, every time you’ll be saving an org file, the first
+headline with a :TOC: tag will be updated with the current table of
+contents.
+
+For setting max depth of headlines in the table of contents we can specify
+the depth value after underline in the tag. For example:
++ :TOC_2: - sets the max depth of the headlines in the table of contents
+  to 2 (the default)
+
+You can also use @ as separator, instead of _.
+
+If you call M-x org-open-at-point (C-c C-o) when you’re at a TOC entry,
+the point will jump to the corresponding heading.
+
 #+begin_src emacs-lisp
-  (use-package project)
+  (use-package toc-org)
 #+end_src
 
-*** TODO quelpa
+* vertico
 #+begin_src emacs-lisp
-  (use-package quelpa
+  (use-package vertico
   :ensure t
-  :defer t
+  :bind (:map vertico-map
+         ("C-j" . vertico-next)
+         ("C-k" . vertico-previous)
+         ("C-f" . vertico-exit)
+         :map minibuffer-local-map
+         ("M-h" . backward-kill-word))
   :custom
-  (quelpa-update-melpa-p nil "Don't update the MELPA git repo."))
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
 
-(use-package quelpa-use-package
-  :ensure t)
+(use-package savehist
+  :init
+  (savehist-mode))
+
+(use-package marginalia
+  :after vertico
+  :ensure t
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+  :init
+  (marginalia-mode))
 #+end_src
 
-*** TODO smartparens
-#+BEGIN_SRC emacs-lisp
-  (use-package smartparens-mode
-    :ensure smartparens  ;; install the package
-    :delight
-    :hook (prog-mode text-mode markdown-mode)
-    :config
-    ;; load default config
-    (require 'smartparens-config)
-    (smartparens-global-mode))
-#+END_SRC
-*** TODO Marginalia
+* orderless
 #+begin_src emacs-lisp
-  ;; Enable rich annotations using the Marginalia package
-  (use-package marginalia
-    ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
-    ;; available in the *Completions* buffer, add it to the
-    ;; `completion-list-mode-map'.
-    :bind (:map minibuffer-local-map
-                ("M-A" . marginalia-cycle))
-
-    ;; The :init section is always executed.
-    :init
-
-    ;; Marginalia must be activated in the :init section of use-package such that
-    ;; the mode gets enabled right away. Note that this forces loading the
-    ;; package.
-    (marginalia-mode))
-#+end_src
-*** TODO orderless
-#+begin_src emacs-lisp
-    ;; Optionally use the `orderless' completion style.
   (use-package orderless
-    :init
-    ;; Configure a custom style dispatcher (see the Consult wiki)
-    ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
-    ;;       orderless-component-separator #'orderless-escapable-split-on-space)
-    (setq completion-styles '(orderless basic)
-          completion-category-defaults nil
-          completion-category-overrides '((file (styles partial-completion)))))
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
-*** TODO corfu
-#+begin_src emacs-lisp
-  (use-package corfu
-    ;; Optional customizations
-    ;; :custom
-    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-    ;; (corfu-auto t)                 ;; Enable auto completion
-    ;; (corfu-separator ?\s)          ;; Orderless field separator
-    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+* [[https://github.com/casouri/vundo][vundo]]
+Vundo (visual undo) displays the undo history as a tree and lets you
+move in the tree to go back to previous buffer states. To use vundo,
+type M-x vundo RET in the buffer you want to undo. An undo tree buffer
+should pop up. To move around, type:
 
-    ;; Enable Corfu only for certain modes.
-    ;; :hook ((prog-mode . corfu-mode)
-    ;;        (shell-mode . corfu-mode)
-    ;;        (eshell-mode . corfu-mode))
++ f :: to go forward
++ b :: to go backward
++ n :: to go to the node below when at a branch point
++ p :: to go to the node above
++ a :: to go back to the last branching point
++ e :: to go forward to the end/tip of the branch
++ l :: to go to the last saved node
++ r :: to go to the next saved node
++ m :: to mark the current node for diff
++ u :: to unmark the marked node
++ d :: to show a diff between the marked (or parent) and current nodes
++ q :: to quit, you can also type C-g
++ C-x C-s :: save the buffer at the current undo state
 
-    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-    ;; be used globally (M-/).  See also the customization variable
-    ;; `global-corfu-modes' to exclude certain modes.
-    :init
-    (global-corfu-mode))
-  ;; A few more useful configurations...
-  (use-package emacs
-    :init
-    ;; TAB cycle if there are only few candidates
-    (setq completion-cycle-threshold 3)
+n/p may need some more explanation. In the following tree, n/p can
+move between A and B because they share a parent (thus at a branching
+point), but not C and D.
 
-    ;; Enable indentation+completion using the TAB key.
-    ;; `completion-at-point' is often bound to M-TAB.
-    (setq tab-always-indent 'complete)
+         A  C
+    ──○━━○──○──○──○
+      ┃  ↕︎
+      ┗━━○──○──○
+         B  D
 
-    ;; Emacs 30 and newer: Disable Ispell completion function. As an alternative,
-    ;; try `cape-dict'.
-    (setq text-mode-ispell-word-completion nil)
+By default, you need to press RET to “commit” your change and if you
+quit with q or C-g, the changes made by vundo are rolled back. You can
+set ‘vundo-roll-back-on-quit’ to nil to disable rolling back.
 
-    ;; Emacs 28 and newer: Hide commands in M-x which do not apply to the current
-    ;; mode.  Corfu commands are hidden, since they are not used via M-x. This
-    ;; setting is useful beyond Corfu.
-    (setq read-extended-command-predicate #'command-completion-default-include-p))
-  ;; Enable auto completion and configure quitting
-  (setq corfu-auto t
-        corfu-quit-no-match 'separator) ;; or t
-  (setq-local corfu-auto        t
-              corfu-auto-delay  0 ;; TOO SMALL - NOT RECOMMENDED
-              corfu-auto-prefix 3 ;; TOO SMALL - NOT RECOMMENDED
-              completion-styles '(basic))
-#+end_src
-
+You might see some green nodes in the tree, those are the buffer
+states that have been saved to disk; the last saved node is emphasized
+in bold. You can type "l" to jump to the last saved node.
 
 #+begin_src emacs-lisp
-  (use-package cape
-    ;; Bind dedicated completion commands
-    ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-    :bind (("C-c p p" . completion-at-point) ;; capf
-           ("C-c p t" . complete-tag)        ;; etags
-           ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-           ("C-c p h" . cape-history)
-           ("C-c p f" . cape-file)
-           ("C-c p k" . cape-keyword)
-           ("C-c p s" . cape-elisp-symbol)
-           ("C-c p e" . cape-elisp-block)
-           ("C-c p a" . cape-abbrev)
-           ("C-c p l" . cape-line)
-           ("C-c p w" . cape-dict)
-           ("C-c p :" . cape-emoji)
-           ("C-c p \\" . cape-tex)
-           ("C-c p _" . cape-tex)
-           ("C-c p ^" . cape-tex)
-           ("C-c p &" . cape-sgml)
-           ("C-c p r" . cape-rfc1345))
-    :init
-    ;; Add to the global default value of `completion-at-point-functions' which is
-    ;; used by `completion-at-point'.  The order of the functions matters, the
-    ;; first function returning a result wins.  Note that the list of buffer-local
-    ;; completion functions takes precedence over the global list.
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-    (add-to-list 'completion-at-point-functions #'cape-history)
-    (add-to-list 'completion-at-point-functions #'cape-keyword)
-    (add-to-list 'completion-at-point-functions #'cape-tex)
-    (add-to-list 'completion-at-point-functions #'cape-sgml)
-    (add-to-list 'completion-at-point-functions #'cape-rfc1345)
-    (add-to-list 'completion-at-point-functions #'cape-abbrev)
-    (add-to-list 'completion-at-point-functions #'cape-dict)
-    (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
-;;    (add-to-list 'completion-at-point-functions #'cape-line)
-  )
+  (use-package vundo
+    :bind
+    ("C-/" . 'vundo))
 #+end_src
-*** TODO which-key
+
+* which-key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :delight)
   (which-key-mode)
 #+END_SRC
-*** TODO writegood
-#+begin_src emacs-lisp
-  (use-package writegood-mode
-  :ensure t)
-#+end_src
-*** TODO yasnippet
+* yasnippet
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :config
     ;(setq yas-snippet-dirs '("~/bazinevis_com_/config_/emacs_/snippets_"))
     (yas-global-mode 1))
-#+END_SRC
-*** TODO yasnippet-snippets
-#+begin_src emacs-lisp
   (use-package yasnippet-snippets)
-#+end_src
-** TODO key-bindings
-+ negative-argument
-  C-- runs the command negative-argument. It is bound to C--, M-- and C-M--.
-  Begin a negative numeric argument for the next command.
-*** TODO org
-#+begin_src emacs-lisp
-  (global-set-key (kbd "M-q")           'org-fill-paragraph)
-  (global-set-key (kbd "C-x n s")       'org-narrow-to-subtree)
-  (global-set-key (kbd "C-x n b")       'org-narrow-to-block)
-  (global-set-key (kbd "C-x n w")       'widen)
-#+end_src
-*** TODO crux
-*** TODO vundo
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-u")           'vundo)
-#+end_src
-*** TODO expand-region
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-=")           'er/expand-region)
-#+end_src
+#+END_SRC
