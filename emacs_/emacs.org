@@ -24,6 +24,7 @@ repositories, "vc-mode" is preferred to "magit" and when working with projects
 - [[#whitespace-cleanup-mode][whitespace-cleanup-mode]]
 - [[#popper][popper]]
 - [[#olivetti][Olivetti]]
+- [[#power-thesaurus][power-thesaurus]]
 - [[#aggressive-indent][aggressive-indent]]
 - [[#dart-mode][dart-mode]]
 - [[#origami][Origami]]
@@ -51,9 +52,6 @@ repositories, "vc-mode" is preferred to "magit" and when working with projects
 - [[#yasnippet][yasnippet]]
 
 * Initializing Package Manager
-
-[[http://www.bazinevis.com/emacs/use-package.html][use-package]]
-
 #+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
@@ -528,6 +526,12 @@ variable whitespace-cleanup-mode-only-if-initially-clean toggled off, it will al
     :config
     (setq-default olivetti-body-width 100))
 #+END_SRC
+* [[https://github.com/SavchenkoValeriy/emacs-powerthesaurus][power-thesaurus]]
+#+begin_src emacs-lisp
+  (use-package powerthesaurus)
+#+end_src
+
+
 * aggressive-indent
 #+begin_src emacs-lisp
   (use-package aggressive-indent
